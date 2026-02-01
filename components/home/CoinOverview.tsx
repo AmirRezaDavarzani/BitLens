@@ -4,9 +4,28 @@ import Image from "next/image";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const CoinOverview = async () => {
-  const coin = await fetcher<CoinDetailsData>("/coins/bitcoin", {
-    dex_pair_format: "symbol",
-  });
+  let coin: CoinDetailsData | null = null;
+
+  try {
+    coin = await fetcher<CoinDetailsData>("/coins/bitcoin", {
+      dex_pair_format: "symbol",
+    });
+  } catch (error) {
+    console.error("CoinOverview fetch failed", error);
+  }
+
+  if (!coin) {
+    return (
+      <div id="coin-overview">
+        <div className="header pt-2">
+          <div className="info">
+            <p>Bitcoin / BTC</p>
+            <h1>Data unavailable</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div id="coin-overview">
       <div className="header pt-2">

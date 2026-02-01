@@ -7,11 +7,17 @@ import { fetcher } from "@/lib/coingecko.action";
 import DataTable from "../DataTable";
 
 const TrendingCoins = async () => {
-  const trendingCoins = await fetcher<{ coins: TrendingCoin[] }>(
-    "/search/trending",
-    undefined,
-    300,
-  );
+  let trendingCoins: { coins: TrendingCoin[] } | null = null;
+
+  try {
+    trendingCoins = await fetcher<{ coins: TrendingCoin[] }>(
+      "/search/trending",
+      undefined,
+      300,
+    );
+  } catch (error) {
+    console.error("TrendingCoins fetch failed", error);
+  }
 
   const columns: DataTableColumn<TrendingCoin>[] = [
     {
@@ -65,16 +71,20 @@ const TrendingCoins = async () => {
   return (
     <div id="trending-coins">
       <h4>Trending Coins</h4>
-      <div id="trending-coins">
-        <DataTable
-          data={trendingCoins.coins.slice(0, 6) || []}
-          columns={columns}
-          rowKey={(coin) => coin.item.id}
-          tableClassName="trending-coins-table"
-          headerCellClassName="py-3!"
-          bodyCellClassName="py-2!"
-        />
-      </div>
+
+      <DataTable
+        data={trendingCoins?.coins.slice(0, 6) || []}
+        columns={columns}
+        rowKey={(coin) => coin.item.id}
+        tableClassName="trending-coins-table"
+        headerCellClassName="py-3!"
+        bodyCellClassName="py-2!"
+      />
+      {!trendingCoins && (
+        <p className="px-5 py-4 text-sm text-purple-100/70">
+          Data unavailable.
+        </p>
+      )}
     </div>
   );
 };

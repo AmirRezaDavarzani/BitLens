@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "BitLens",
-  description: "The ultimate crypto dashboard. Monitor real-time prices, manage your digital portfolio, and explore market insights with BitLens’s high-performance interface",
+  description:
+    "The ultimate crypto dashboard. Monitor real-time prices, manage your digital portfolio, and explore market insights with BitLens’s high-performance interface",
 };
 
 export default function RootLayout({
@@ -24,11 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header/>
+        <Header />
         {children}
       </body>
     </html>

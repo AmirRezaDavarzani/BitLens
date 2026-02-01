@@ -1,0 +1,92 @@
+import React from "react";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { cn, formatCurrency } from "@/lib/utils";
+import { fetcher } from "@/lib/coingecko.action";
+import DataTable from "../DataTable";
+
+const TrendingCoins = async () => {
+  let trendingCoins: { coins: TrendingCoin[] } | null = null;
+
+  try {
+    trendingCoins = await fetcher<{ coins: TrendingCoin[] }>(
+      "/search/trending",
+      undefined,
+      300,
+    );
+  } catch (error) {
+    console.error("TrendingCoins fetch failed", error);
+  }
+
+  const columns: DataTableColumn<TrendingCoin>[] = [
+    {
+      header: "Name",
+      cellClassName: "name-cell",
+      cell: (coin) => {
+        const item = coin.item;
+        return (
+          <Link href={`/coins/${item.id}`}>
+            <Image src={item.large} alt={item.name} width={36} height={36} />
+            <p>{item.name}</p>
+            <span className="text-xs text-purple-100/60 uppercase">
+              ({item.symbol})
+            </span>
+          </Link>
+        );
+      },
+    },
+    {
+      header: "24h Price Change",
+      cellClassName: "name-cell",
+      cell: (coin) => {
+        const item = coin.item;
+        const isTrendingUp = item.data.price_change_percentage_24h.usd > 0;
+        return (
+          <div
+            className={cn(
+              "price-change",
+              isTrendingUp ? "text-green-500" : "text-red-500",
+            )}
+          >
+            <p>
+              {isTrendingUp ? (
+                <TrendingUp width={16} height={16} />
+              ) : (
+                <TrendingDown width={16} height={16} />
+              )}
+              {Math.abs(item.data.price_change_percentage_24h.usd).toFixed(2)}%
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      header: "Price",
+      cellClassName: "price-cell",
+      cell: (coin) => coin.item.data.price,
+    },
+  ];
+
+  return (
+    <div id="trending-coins">
+      <h4>Trending Coins</h4>
+
+      <DataTable
+        data={trendingCoins?.coins.slice(0, 6) || []}
+        columns={columns}
+        rowKey={(coin) => coin.item.id}
+        tableClassName="trending-coins-table"
+        headerCellClassName="py-3!"
+        bodyCellClassName="py-2!"
+      />
+      {!trendingCoins && (
+        <p className="px-5 py-4 text-sm text-purple-100/70">
+          Data unavailable.
+        </p>
+      )}
+    </div>
+  );
+};
+
+export default TrendingCoins;
